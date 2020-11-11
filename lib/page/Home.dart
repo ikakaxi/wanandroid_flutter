@@ -1,5 +1,5 @@
 import 'package:base_lib/export.dart';
-import 'package:base_lib/widget/state_abstract_paging_list.dart';
+import 'package:base_lib/widget/paging_list.dart';
 
 /// author: liuhaichao
 /// description: 首页
