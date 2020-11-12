@@ -1,5 +1,9 @@
 class BasePage<T> {
-  int page = 0;
-  int pages;
-  List<T> dataList = <T>[];
+  int page;
+  bool hasNext;
+  List<T> dataList = [];
+
+  void clear() {
+    dataList?.clear();
+  }
 }

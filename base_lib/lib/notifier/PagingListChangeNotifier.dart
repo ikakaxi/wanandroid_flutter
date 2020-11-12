@@ -1,4 +1,4 @@
-import 'package:base_lib/widget/multi_state_list.dart';
+import 'package:base_lib/widget/paging_list.dart';
 import 'package:flutter/material.dart';
 import '../widget/BasePage.dart';
 
@@ -7,45 +7,42 @@ import '../widget/BasePage.dart';
 
 abstract class PagingListChangeNotifier<LIST_ITEM> extends ChangeNotifier {
   //当前列表状态
-  ListState listState = ListState.SHOW_INIT;
+  ListState listState = ListState.LOADING;
 
+  @protected
   int firstPageIndex;
 
   //当前列表的数据
+  @protected
   BasePage<LIST_ITEM> basePage;
+
+  List<LIST_ITEM> get dataList => basePage?.dataList;
 
   PagingListChangeNotifier({int firstPageIndex = 1}) : this.firstPageIndex = firstPageIndex;
 
-  Future refreshData(
+  ///在子类实现该方法的时候要改变listState的状态,否则即使有数据页面也不会显示数据
+  Future requestData(
     BuildContext context, {
     @required int pageIndex,
     @required bool reset,
   });
 
-  bool hasNext() {
-    return basePage.page >= basePage.pages;
-  }
+  bool hasNext() => basePage.hasNext;
 
-  ///调用该方法前先调用hasNext判断有没有下一页
   void loadMore(BuildContext context) async {
-    assert(hasNext());
     try {
-      await refreshData(context, pageIndex: basePage.page + 1, reset: false);
-      listState = ListState.SHOW_LIST;
-      notifyListeners();
+      await requestData(context, pageIndex: basePage.page + 1, reset: false);
     } catch (e) {
-      listState = ListState.SHOW_ERROR;
+      listState = ListState.ERROR;
       notifyListeners();
     }
   }
 
   void onRefresh(BuildContext context) async {
     try {
-      await refreshData(context, pageIndex: firstPageIndex, reset: true);
-      listState = ListState.SHOW_LIST;
-      notifyListeners();
+      await requestData(context, pageIndex: firstPageIndex, reset: true);
     } catch (e) {
-      listState = ListState.SHOW_ERROR;
+      listState = ListState.ERROR;
       notifyListeners();
     }
   }

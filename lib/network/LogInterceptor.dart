@@ -11,12 +11,12 @@ class LogInterceptor extends Interceptor {
       url = options.baseUrl + options.path;
     }
     print("""
-    $_TAG request==>
-      path=$url
-      method=${options.method}
-      token=${options.headers["token"]}
-      ${options.data == null ? "" : "\n\t\tparam=${options.data}"}
-    """);
+$_TAG request==>
+  path=$url
+  method=${options.method}
+  token=${options.headers["token"]}
+  ${options.data == null ? "" : "\n\t\tparam=${options.data}"}
+""");
     return options;
   }
 
@@ -29,13 +29,13 @@ class LogInterceptor extends Interceptor {
     }
     String dataString = response.data.toString();
     print("""
-    $_TAG <==response
-      path=$url
-      method=${response.request.method}
-      token=${response.request.headers["token"]}
-      ${response.request.data == null ? "" : "\n\t\tparam=${response.request.data}"}
-      response=$dataString
-    """);
+$_TAG <==response
+  path=$url
+  method=${response.request.method}
+  token=${response.request.headers["token"]}
+  ${response.request.data == null ? "" : "\n\t\tparam=${response.request.data}"}
+  response=$dataString
+""");
     return response;
   }
 
