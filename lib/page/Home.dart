@@ -13,7 +13,10 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return PagingListWidget<Datas, HomeChangeNotifier>(
       createItem: (BuildContext context, int index, Datas data) {
-        return Text(data.title);
+        return Container(
+          padding: const EdgeInsets.all(10),
+          child: Text(data.title),
+        );
       },
     );
   }

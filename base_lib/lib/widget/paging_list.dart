@@ -52,19 +52,32 @@ class _PagingListWidgetState<LIST_ITEM, C extends PagingListChangeNotifier<LIST_
           retry: value.onRetry,
           onRefresh: widget._refreshEnable
               ? () async {
-                  value.onRefresh(context);
+                  await value.onRefresh(context);
                   _controller.resetLoadState();
                 }
               : null,
           loadMore: widget._loadMoreEnable
               ? () async {
-                  value.loadMore(context);
+                  await value.loadMore(context);
                   _controller.finishLoad(noMore: !value.hasNext());
                 }
               : null,
           child: SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => widget._createItem(context, index, value.dataList[index]),
+              (context, index) {
+                Widget child = widget._createItem(context, index, value.dataList[index]);
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text("$index"),
+                        Expanded(child: child),
+                      ],
+                    ),
+                    Divider(height: 0, color: Colors.grey),
+                  ],
+                );
+              },
               childCount: value.dataList?.length ?? 0,
             ),
           ),
