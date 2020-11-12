@@ -38,7 +38,7 @@ class _PagingListWidgetState<LIST_ITEM, C extends PagingListChangeNotifier<LIST_
   void initState() {
     super.initState();
     C consumer = context.read<C>();
-    consumer.requestData(context, pageIndex: 1, reset: true);
+    consumer.loadFirstPage(context);
   }
 
   @override

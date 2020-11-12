@@ -1,9 +1,11 @@
-class BasePage<T> {
+class PagingData<T> {
   int page;
   bool hasNext;
   List<T> dataList = [];
 
-  void clear() {
+  void reset() {
+    page = null;
+    hasNext = null;
     dataList?.clear();
   }
 }
