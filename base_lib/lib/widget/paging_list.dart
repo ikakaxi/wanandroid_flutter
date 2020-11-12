@@ -31,7 +31,8 @@ class PagingListWidget<LIST_ITEM, C extends PagingListChangeNotifier<LIST_ITEM>>
   }
 }
 
-class _PagingListWidgetState<LIST_ITEM, C extends PagingListChangeNotifier<LIST_ITEM>> extends State<PagingListWidget> {
+class _PagingListWidgetState<LIST_ITEM, C extends PagingListChangeNotifier<LIST_ITEM>>
+    extends State<PagingListWidget<LIST_ITEM, C>> {
   final EasyRefreshController _controller = EasyRefreshController();
 
   @override
