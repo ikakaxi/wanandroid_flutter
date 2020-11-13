@@ -56,7 +56,7 @@ packages:
       name: cupertino_icons
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.0"
+    version: "0.1.3"
   dio:
     dependency: transitive
     description:
@@ -82,7 +82,7 @@ packages:
       name: flutter_easyrefresh
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.6"
+    version: "1.2.7"
   flutter_test:
     dependency: "direct dev"
     description: flutter

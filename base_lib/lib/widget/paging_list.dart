@@ -33,7 +33,9 @@ class PagingListWidget<LIST_ITEM, C extends PagingListChangeNotifier<LIST_ITEM>>
 
 class _PagingListWidgetState<LIST_ITEM, C extends PagingListChangeNotifier<LIST_ITEM>>
     extends State<PagingListWidget<LIST_ITEM, C>> {
-  final EasyRefreshController _controller = EasyRefreshController();
+  GlobalKey<EasyRefreshState> easyRefreshKey = GlobalKey<EasyRefreshState>();
+  GlobalKey<RefreshHeaderState> headerKey = GlobalKey<RefreshHeaderState>();
+  GlobalKey<RefreshFooterState> footerKey = GlobalKey<RefreshFooterState>();
 
   @override
   void initState() {
@@ -47,39 +49,40 @@ class _PagingListWidgetState<LIST_ITEM, C extends PagingListChangeNotifier<LIST_
     return Consumer<C>(
       builder: (BuildContext context, C value, Widget child) {
         return MultiStateList(
-          controller: _controller,
+          easyRefreshKey: easyRefreshKey,
+          headerKey: headerKey,
+          footerKey: footerKey,
           listState: value.listState,
           retry: value.onRetry,
           onRefresh: widget._refreshEnable
               ? () async {
                   await value.onRefresh(context);
-                  _controller.resetLoadState();
                 }
               : null,
           loadMore: widget._loadMoreEnable
               ? () async {
                   await value.loadMore(context);
-                  _controller.finishLoad(noMore: !value.hasNext());
                 }
               : null,
-          child: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                Widget child = widget._createItem(context, index, value.dataList[index]);
-                return Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text("$index"),
-                        Expanded(child: child),
-                      ],
-                    ),
-                    Divider(height: 0, color: Colors.grey),
-                  ],
-                );
-              },
-              childCount: value.dataList?.length ?? 0,
-            ),
+          child: ListView.separated(
+            separatorBuilder: (BuildContext context, int index) {
+              return Divider(height: 0, color: Colors.grey);
+            },
+            itemCount: value.dataList?.length ?? 0,
+            itemBuilder: (BuildContext context, int index) {
+              Widget child = widget._createItem(context, index, value.dataList[index]);
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      Text("$index"),
+                      Expanded(child: child),
+                    ],
+                  ),
+                  Divider(height: 0, color: Colors.grey),
+                ],
+              );
+            },
           ),
         );
       },
@@ -113,10 +116,12 @@ class MultiStateList extends StatelessWidget {
 
   //点击无数据或者错误信息的重试按钮时回调的事件
   final RetryLoad _retry;
-  final OnRefreshCallback _onRefresh;
-  final OnLoadCallback _loadMore;
+  final OnRefresh _onRefresh;
+  final LoadMore _loadMore;
 
-  final EasyRefreshController _controller;
+  final GlobalKey<EasyRefreshState> _easyRefreshKey;
+  final GlobalKey<RefreshHeaderState> _headerKey;
+  final GlobalKey<RefreshFooterState> _footerKey;
 
   //列表
   final Widget _child;
@@ -126,13 +131,15 @@ class MultiStateList extends StatelessWidget {
 
   MultiStateList(
       {Key key,
+      GlobalKey<EasyRefreshState> easyRefreshKey,
+      GlobalKey<RefreshHeaderState> headerKey,
+      GlobalKey<RefreshFooterState> footerKey,
       Widget init,
       Widget empty,
       Widget error,
       ListState listState,
-      OnRefreshCallback onRefresh,
-      OnLoadCallback loadMore,
-      @required EasyRefreshController controller,
+      OnRefresh onRefresh,
+      LoadMore loadMore,
       @required RetryLoad retry,
       @required Widget child})
       : assert(retry != null),
@@ -144,7 +151,9 @@ class MultiStateList extends StatelessWidget {
         _retry = retry,
         _onRefresh = onRefresh,
         _loadMore = loadMore,
-        _controller = controller,
+        _easyRefreshKey = easyRefreshKey,
+        _headerKey = headerKey,
+        _footerKey = footerKey,
         _child = child,
         super(key: key);
 
@@ -228,14 +237,37 @@ class MultiStateList extends StatelessWidget {
       case ListState.ERROR:
         return _error ?? getDefaultError(context);
       case ListState.CONTENT:
-        return EasyRefresh.custom(
-          behavior: ScrollBehavior(),
-          header: ClassicalHeader(),
-          footer: ClassicalFooter(),
-          controller: _controller,
-          slivers: <Widget>[_child],
+        return EasyRefresh(
+          key: _easyRefreshKey,
+          behavior: ScrollOverBehavior(),
+          refreshHeader: ClassicsHeader(
+            key: _headerKey,
+            refreshText: '下拉刷新',
+            refreshReadyText: '释放刷新',
+            refreshingText: '正在刷新...',
+            refreshedText: '刷新结束',
+            moreInfo: '更新于 %T',
+            bgColor: Colors.transparent,
+            textColor: Colors.black87,
+            moreInfoColor: Colors.black54,
+            showMore: true,
+          ),
+          refreshFooter: ClassicsFooter(
+            key: _footerKey,
+            loadText: '上拉加载',
+            loadReadyText: '释放加载',
+            loadingText: '正在加载...',
+            loadedText: '加载结束',
+            noMoreText: '没有更多数据',
+            moreInfo: '更新于 %T',
+            bgColor: Colors.transparent,
+            textColor: Colors.black87,
+            moreInfoColor: Colors.black54,
+            showMore: true,
+          ),
+          child: _child,
           onRefresh: _onRefresh,
-          onLoad: _loadMore,
+          loadMore: _loadMore,
         );
       default:
         return null;
