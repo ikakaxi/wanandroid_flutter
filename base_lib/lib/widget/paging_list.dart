@@ -1,14 +1,13 @@
+import 'package:base_lib/control/PagingListControl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
-import 'package:provider/provider.dart';
-
-import '../notifier/PagingListChangeNotifier.dart';
+import 'package:get/get.dart';
 
 typedef ItemBuilder<T> = Widget Function(BuildContext context, int index, T data);
 typedef RetryLoad = void Function(BuildContext context);
 
 ///继承该类的Widget就有了上拉加载下拉刷新的功能
-class PagingListWidget<LIST_ITEM, C extends PagingListChangeNotifier<LIST_ITEM>> extends StatefulWidget {
+class PagingListWidget<LIST_ITEM, C extends PagingListControl<LIST_ITEM>> extends StatelessWidget {
   final ItemBuilder<LIST_ITEM> _createItem;
 
   //是否可以下拉刷新
@@ -26,51 +25,32 @@ class PagingListWidget<LIST_ITEM, C extends PagingListChangeNotifier<LIST_ITEM>>
         this._loadMoreEnable = loadMoreEnable;
 
   @override
-  State<StatefulWidget> createState() {
-    return _PagingListWidgetState<LIST_ITEM, C>();
-  }
-}
-
-class _PagingListWidgetState<LIST_ITEM, C extends PagingListChangeNotifier<LIST_ITEM>>
-    extends State<PagingListWidget<LIST_ITEM, C>> {
-  GlobalKey<EasyRefreshState> easyRefreshKey = GlobalKey<EasyRefreshState>();
-  GlobalKey<RefreshHeaderState> headerKey = GlobalKey<RefreshHeaderState>();
-  GlobalKey<RefreshFooterState> footerKey = GlobalKey<RefreshFooterState>();
-
-  @override
-  void initState() {
-    super.initState();
-    C consumer = context.read<C>();
-    consumer.loadFirstPage(context);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Consumer<C>(
-      builder: (BuildContext context, C value, Widget child) {
+    return GetBuilder<C>(
+      builder: (control) {
         return MultiStateList(
-          easyRefreshKey: easyRefreshKey,
-          headerKey: headerKey,
-          footerKey: footerKey,
-          listState: value.listState,
-          retry: value.onRetry,
-          onRefresh: widget._refreshEnable
+          easyRefreshKey: control.easyRefreshKey,
+          headerKey: control.headerKey,
+          footerKey: control.footerKey,
+          listState: control.listState,
+          retry: control.onRetry,
+          onRefresh: _refreshEnable
               ? () async {
-                  await value.onRefresh(context);
+                  await control.onRefresh();
                 }
               : null,
-          loadMore: widget._loadMoreEnable
+          loadMore: _loadMoreEnable
               ? () async {
-                  await value.loadMore(context);
+                  await control.loadMore();
                 }
               : null,
           child: ListView.separated(
             separatorBuilder: (BuildContext context, int index) {
               return Divider(height: 0, color: Colors.grey);
             },
-            itemCount: value.dataList?.length ?? 0,
+            itemCount: control.dataList?.length ?? 0,
             itemBuilder: (BuildContext context, int index) {
-              Widget child = widget._createItem(context, index, value.dataList[index]);
+              Widget child = _createItem(context, index, control.dataList[index]);
               return Column(
                 children: [
                   Row(

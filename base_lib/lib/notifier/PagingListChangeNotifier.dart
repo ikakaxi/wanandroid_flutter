@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../widget/PagingData.dart';
 
 ///具有分页功能的ChangeNotifier
+///现在使用GetX框架,所以这个只是保留一下代码,作为使用ChangeNotifier方式的demo
 ///author:liuhc
-
 abstract class PagingListChangeNotifier<LIST_ITEM> extends ChangeNotifier {
   @protected
   final int firstPageIndex;
