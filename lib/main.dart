@@ -1,6 +1,5 @@
 import 'package:base_lib/export.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wanandroid_flutter/page/Home.dart';
 
 import 'control/AppChangeNotifier.dart';
@@ -9,7 +8,6 @@ import 'network/ApiService.dart';
 import 'network/AppNet.dart';
 import 'network/LogInterceptor.dart';
 import 'network/StatusCheckInterceptor.dart';
-import 'notifier/AppChangeNotifier.dart';
 
 void main() {
   ApiService.init(
@@ -20,10 +18,7 @@ void main() {
     ],
   );
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => AppChangeNotifier(),
-      child: App(),
-    ),
+    App(),
   );
 }
 
